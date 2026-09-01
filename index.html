@@ -254,20 +254,54 @@
             border-color: rgba(168, 240, 194, 0.3);
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 600px) {
+            body {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding: 50px 16px 20px 16px;
+                overflow-y: auto;
+                min-height: 100dvh;
+            }
+
             .background-logo {
-                width: 92vw;
-                max-width: 330px;
-                max-height: 65dvh;
+                position: relative;
+                top: auto;
+                left: auto;
+                transform: none;
+                width: 150px;
+                max-width: 45vw;
+                max-height: 180px;
+                object-fit: contain;
+                margin: 0 auto 16px auto;
+                opacity: 0.90;
+                filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.25));
+                animation: pulseLogoMobile 4s ease-in-out infinite;
+            }
+
+            @keyframes pulseLogoMobile {
+                0%, 100% {
+                    transform: scale(0.96);
+                    opacity: 0.82;
+                }
+                50% {
+                    transform: scale(1.04);
+                    opacity: 1.0;
+                }
+            }
+
+            .container {
+                width: 100%;
+                max-width: 360px;
             }
 
             .days-number {
-                font-size: 3.5rem;
+                font-size: 3.8rem;
             }
 
             h1 {
-                font-size: 1rem;
-                letter-spacing: 1px;
+                font-size: 1.05rem;
+                letter-spacing: 1.5px;
             }
 
             .admin-button {
