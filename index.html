@@ -109,87 +109,125 @@
             top: 20px;
             right: 20px;
             z-index: 20;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #ffffff;
-            color: #ffffff;
-            padding: 10px 14px;
-            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.6);
+            padding: 8px 12px;
+            border-radius: 4px;
             font-family: 'Impact', 'Arial Black', 'Segoe UI', sans-serif;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .admin-button:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.85);
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
         .admin-panel {
             position: fixed;
-            top: 70px;
+            top: 65px;
             right: 20px;
-            width: min(340px, calc(100vw - 40px));
-            background: rgba(0, 0, 0, 0.92);
-            border: 1px solid #ffffff;
-            border-radius: 8px;
-            padding: 18px;
+            width: min(360px, calc(100vw - 40px));
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.96) 0%, rgba(15, 15, 15, 0.96) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 24px;
             z-index: 19;
             display: none;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .admin-panel.visible {
             display: block;
+            animation: slideInPanel 0.3s ease-out;
+        }
+
+        @keyframes slideInPanel {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .admin-panel h2 {
-            font-size: 1rem;
+            font-size: 0.95rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 12px;
-        }
-
-        .credentials {
-            font-size: 0.72rem;
-            letter-spacing: 1px;
-            color: #cccccc;
-            margin-bottom: 12px;
-            line-height: 1.6;
+            margin-bottom: 16px;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 900;
         }
 
         .admin-form {
             display: grid;
-            gap: 10px;
+            gap: 12px;
         }
 
         .admin-form input,
         .admin-form button {
             width: 100%;
-            padding: 10px 12px;
+            padding: 11px 14px;
             border-radius: 6px;
-            border: 1px solid #ffffff;
-            background: #111111;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
             color: #ffffff;
             font-family: 'Impact', 'Arial Black', 'Segoe UI', sans-serif;
             font-size: 0.9rem;
             letter-spacing: 0.08em;
+            transition: all 0.2s ease;
         }
 
-        .admin-form input[type="text"] {
+        .admin-form input[type="text"],
+        .admin-form input[type="password"],
+        .admin-form input[type="date"],
+        .admin-form input[type="file"] {
             min-width: 0;
+        }
+
+        .admin-form input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.4);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
         }
 
         .admin-form button {
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 1px;
-            background: #ffffff;
-            color: #000000;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+            color: #ffffff;
             font-weight: bold;
+            border-color: rgba(255, 255, 255, 0.25);
+            transition: all 0.2s ease;
+        }
+
+        .admin-form button:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.12) 100%);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .admin-form button:active {
+            transform: scale(0.98);
         }
 
         .admin-message {
             min-height: 20px;
-            margin-top: 8px;
+            margin-top: 12px;
             font-size: 0.76rem;
-            color: #ffb0b0;
+            color: #a8f0c2;
+            letter-spacing: 0.5px;
         }
 
         @media (max-width: 480px) {
@@ -203,13 +241,17 @@
             }
 
             .admin-button {
-                top: 10px;
-                right: 10px;
+                top: 12px;
+                right: 12px;
+                padding: 7px 10px;
+                font-size: 0.65rem;
             }
 
             .admin-panel {
-                top: 58px;
-                right: 10px;
+                top: 54px;
+                right: 12px;
+                width: calc(100vw - 24px);
+                padding: 20px;
             }
         }
     </style>
@@ -220,30 +262,26 @@
     <button class="admin-button" id="adminToggle" type="button">Admin</button>
 
     <div class="admin-panel" id="adminPanel" aria-live="polite">
-        <h2>Configuração</h2>
-        <div class="credentials">
-            Usuário: <strong>admin</strong><br>
-            Senha: <strong>q2l9w5n8</strong>
-        </div>
+        <h2>Admin</h2>
 
         <form id="loginForm" class="admin-form">
             <input type="text" id="username" placeholder="Usuário" autocomplete="username" required>
             <input type="password" id="password" placeholder="Senha" autocomplete="current-password" required>
-            <button type="submit">Entrar</button>
+            <button type="submit">Acessar</button>
         </form>
 
-        <form id="configForm" class="admin-form" style="display: none; margin-top: 14px;">
-            <label style="text-align:left; font-size:0.75rem; letter-spacing:1px; color:#cccccc;">Título do contador</label>
-            <input type="text" id="counterTitle" maxlength="60" placeholder="Ex: Próximo Rolê / Evento">
+        <form id="configForm" class="admin-form" style="display: none; margin-top: 12px;">
+            <label style="text-align:left; font-size:0.7rem; letter-spacing:1px; color:rgba(255,255,255,0.6); text-transform:uppercase; display:block; margin-bottom:6px;">Título do evento</label>
+            <input type="text" id="counterTitle" maxlength="60" placeholder="Digite o título">
 
-            <label style="text-align:left; font-size:0.75rem; letter-spacing:1px; color:#cccccc;">Data do evento</label>
+            <label style="text-align:left; font-size:0.7rem; letter-spacing:1px; color:rgba(255,255,255,0.6); text-transform:uppercase; display:block; margin-bottom:6px; margin-top:6px;">Data do evento</label>
             <input type="date" id="eventDate" required>
 
-            <label style="text-align:left; font-size:0.75rem; letter-spacing:1px; color:#cccccc;">Imagem de fundo</label>
+            <label style="text-align:left; font-size:0.7rem; letter-spacing:1px; color:rgba(255,255,255,0.6); text-transform:uppercase; display:block; margin-bottom:6px; margin-top:6px;">Imagem de fundo</label>
             <input type="file" id="backgroundFile" accept="image/*">
 
-            <button type="submit">Salvar</button>
-            <button type="button" id="logoutBtn" style="background:#111111; color:#ffffff;">Sair</button>
+            <button type="submit" style="margin-top:6px;">Salvar alterações</button>
+            <button type="button" id="logoutBtn" style="background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.7);">Sair</button>
         </form>
 
         <div class="admin-message" id="adminMessage"></div>
