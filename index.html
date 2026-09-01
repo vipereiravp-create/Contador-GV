@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Old Gentlemen Bikers - Contagem Regressiva</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Impact', 'Arial Black', 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            letter-spacing: 0.05em;
+        }
+
+        .background-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vw;
+            max-width: 500px;
+            opacity: 0.15;
+            filter: grayscale(100%) contrast(150%);
+            z-index: 1;
+            pointer-events: none;
+            animation: pulseLogo 4s ease-in-out infinite;
+        }
+
+        @keyframes pulseLogo {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(0.96);
+                opacity: 0.12;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.04);
+                opacity: 0.18;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.42);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(1px);
+            -webkit-backdrop-filter: blur(1px);
+            max-width: 90%;
+            width: 400px;
+        }
+
+        h1 {
+            font-size: 1.18rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ffffff;
+            padding-bottom: 10px;
+            font-weight: 900;
+            text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .counter-box {
+            margin: 20px 0;
+        }
+
+        .days-number {
+            font-size: 5rem;
+            font-weight: 900;
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            text-shadow: 3px 3px 0 rgba(255, 255, 255, 0.12);
+        }
+
+        .days-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-top: 5px;
+            color: #d9d9d9;
+            font-weight: 700;
+        }
+
+        .footer-text {
+            font-size: 0.75rem;
+            color: #888888;
+            margin-top: 15px;
+            letter-spacing: 1px;
+        }
+
+        .admin-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #ffffff;
+            color: #ffffff;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-family: 'Impact', 'Arial Black', 'Segoe UI', sans-serif;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+
+        .admin-panel {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: min(340px, calc(100vw - 40px));
+            background: rgba(0, 0, 0, 0.92);
+            border: 1px solid #ffffff;
+            border-radius: 8px;
+            padding: 18px;
+            z-index: 19;
+            display: none;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+        }
+
+        .admin-panel.visible {
+            display: block;
+        }
+
+        .admin-panel h2 {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .credentials {
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            color: #cccccc;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .admin-form {
+            display: grid;
+            gap: 10px;
+        }
+
+        .admin-form input,
+        .admin-form button {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid #ffffff;
+            background: #111111;
+            color: #ffffff;
+            font-family: 'Impact', 'Arial Black', 'Segoe UI', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.08em;
+        }
+
+        .admin-form input[type="text"] {
+            min-width: 0;
+        }
+
+        .admin-form button {
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: #ffffff;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .admin-message {
+            min-height: 20px;
+            margin-top: 8px;
+            font-size: 0.76rem;
+            color: #ffb0b0;
+        }
+
+        @media (max-width: 480px) {
+            .days-number {
+                font-size: 3.5rem;
+            }
+
+            h1 {
+                font-size: 1rem;
+                letter-spacing: 1px;
+            }
+
+            .admin-button {
+                top: 10px;
+                right: 10px;
+            }
+
+            .admin-panel {
+                top: 58px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <img id="backgroundLogo" src="brasao.svg" alt="Brasão Old Gentlemen Bikers" class="background-logo">
+
+    <button class="admin-button" id="adminToggle" type="button">Admin</button>
+
+    <div class="admin-panel" id="adminPanel" aria-live="polite">
+        <h2>Configuração</h2>
+        <div class="credentials">
+            Usuário: <strong>admin</strong><br>
+            Senha: <strong>q2l9w5n8</strong>
+        </div>
+
+        <form id="loginForm" class="admin-form">
+            <input type="text" id="username" placeholder="Usuário" autocomplete="username" required>
+            <input type="password" id="password" placeholder="Senha" autocomplete="current-password" required>
+            <button type="submit">Entrar</button>
+        </form>
+
+        <form id="configForm" class="admin-form" style="display: none; margin-top: 14px;">
+            <label style="text-align:left; font-size:0.75rem; letter-spacing:1px; color:#cccccc;">Título do contador</label>
+            <input type="text" id="counterTitle" maxlength="60" placeholder="Ex: Próximo Rolê / Evento">
+
+            <label style="text-align:left; font-size:0.75rem; letter-spacing:1px; color:#cccccc;">Data do evento</label>
+            <input type="date" id="eventDate" required>
+
+            <label style="text-align:left; font-size:0.75rem; letter-spacing:1px; color:#cccccc;">Imagem de fundo</label>
+            <input type="file" id="backgroundFile" accept="image/*">
+
+            <button type="submit">Salvar</button>
+            <button type="button" id="logoutBtn" style="background:#111111; color:#ffffff;">Sair</button>
+        </form>
+
+        <div class="admin-message" id="adminMessage"></div>
+    </div>
+
+    <div class="container">
+        <h1 id="counterTitleDisplay">Próximo Rolê / Evento</h1>
+        <div class="counter-box">
+            <div class="days-number" id="days" aria-live="polite">--</div>
+            <div class="days-label">Dias Restantes</div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEYS = {
+            date: 'ogb-event-date',
+            background: 'ogb-event-background',
+            title: 'ogb-event-title'
+        };
+
+        const ADMIN_USER = 'admin';
+        const ADMIN_PASSWORD = 'q2l9w5n8';
+
+        const adminToggle = document.getElementById('adminToggle');
+        const adminPanel = document.getElementById('adminPanel');
+        const loginForm = document.getElementById('loginForm');
+        const configForm = document.getElementById('configForm');
+        const adminMessage = document.getElementById('adminMessage');
+        const backgroundLogo = document.getElementById('backgroundLogo');
+        const counterTitleDisplay = document.getElementById('counterTitleDisplay');
+        const counterTitleInput = document.getElementById('counterTitle');
+        const eventDateInput = document.getElementById('eventDate');
+        const backgroundFileInput = document.getElementById('backgroundFile');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        let targetDate = new Date('2026-12-31T00:00:00');
+
+        function setMessage(message, isError = false) {
+            adminMessage.textContent = message;
+            adminMessage.style.color = isError ? '#ffb0b0' : '#a8f0c2';
+        }
+
+        function applyStoredOptions() {
+            const savedDate = localStorage.getItem(STORAGE_KEYS.date);
+            const savedBackground = localStorage.getItem(STORAGE_KEYS.background);
+            const savedTitle = localStorage.getItem(STORAGE_KEYS.title) || 'Próximo Rolê / Evento';
+
+            counterTitleDisplay.textContent = savedTitle;
+            counterTitleInput.value = savedTitle;
+
+            if (savedDate) {
+                targetDate = new Date(savedDate + 'T00:00:00');
+                eventDateInput.value = savedDate;
+            } else {
+                eventDateInput.value = '2026-12-31';
+            }
+
+            if (savedBackground) {
+                backgroundLogo.src = savedBackground;
+            }
+        }
+
+        function updateCountdown() {
+            const now = new Date();
+            const difference = targetDate - now;
+
+            if (difference > 0) {
+                const daysLeft = Math.ceil(difference / (1000 * 60 * 60 * 24));
+                document.getElementById('days').innerText = daysLeft;
+                document.querySelector('.days-label').innerText = 'Dias Restantes';
+            } else {
+                document.getElementById('days').innerText = '0';
+                document.querySelector('.days-label').innerText = 'Evento Iniciado!';
+            }
+        }
+
+        function togglePanel() {
+            adminPanel.classList.toggle('visible');
+        }
+
+        function showConfigPanel() {
+            loginForm.style.display = 'none';
+            configForm.style.display = 'grid';
+            setMessage('Acesso liberado para configurar o evento.');
+        }
+
+        function showLoginPanel() {
+            loginForm.style.display = 'grid';
+            configForm.style.display = 'none';
+            setMessage('');
+        }
+
+        function saveBackgroundImage(file) {
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const imageData = event.target.result;
+                backgroundLogo.src = imageData;
+                localStorage.setItem(STORAGE_KEYS.background, imageData);
+                setMessage('Imagem de fundo salva com sucesso.');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        adminToggle.addEventListener('click', togglePanel);
+
+        loginForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (username === ADMIN_USER && password === ADMIN_PASSWORD) {
+                showConfigPanel();
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+            } else {
+                setMessage('Usuário ou senha incorretos.', true);
+            }
+        });
+
+        configForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const titleValue = counterTitleInput.value.trim();
+            const selectedDate = eventDateInput.value;
+            if (!selectedDate) {
+                setMessage('Selecione uma data válida.', true);
+                return;
+            }
+
+            const finalTitle = titleValue || 'Próximo Rolê / Evento';
+            counterTitleDisplay.textContent = finalTitle;
+            localStorage.setItem(STORAGE_KEYS.title, finalTitle);
+
+            targetDate = new Date(selectedDate + 'T00:00:00');
+            localStorage.setItem(STORAGE_KEYS.date, selectedDate);
+
+            if (backgroundFileInput.files && backgroundFileInput.files[0]) {
+                saveBackgroundImage(backgroundFileInput.files[0]);
+            }
+
+            updateCountdown();
+            setMessage('Dados do evento salvos com sucesso.');
+        });
+
+        logoutBtn.addEventListener('click', function () {
+            showLoginPanel();
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            adminPanel.classList.add('visible');
+        });
+
+        applyStoredOptions();
+        updateCountdown();
+        setInterval(updateCountdown, 60000);
+    </script>
+</body>
+</html>

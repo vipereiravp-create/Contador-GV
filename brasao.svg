@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-labelledby="title desc">
+  <title id="title">Brasão Old Gentlemen Bikers</title>
+  <desc id="desc">Emblema em preto e branco com escudo, corrente e texto OGB.</desc>
+  <rect width="600" height="600" fill="#000000"/>
+  <g fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M300 40 L500 110 L500 330 C500 420 430 500 300 560 C170 500 100 420 100 330 L100 110 Z" fill="#ffffff" opacity="0.06"/>
+    <path d="M300 80 L455 135 L455 310 C455 385 406 445 300 505 C194 445 145 385 145 310 L145 135 Z"/>
+    <path d="M220 105 L300 195 L380 105"/>
+    <path d="M215 210 L300 280 L385 210"/>
+    <path d="M300 280 L300 420"/>
+    <path d="M230 420 C250 388, 268 375, 300 375 C332 375, 350 388, 370 420"/>
+    <path d="M200 220 L140 320"/>
+    <path d="M400 220 L460 320"/>
+    <path d="M145 350 L220 400"/>
+    <path d="M455 350 L380 400"/>
+  </g>
+  <g fill="#ffffff" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="300" y="245" font-size="28" letter-spacing="8">OGB</text>
+    <text x="300" y="470" font-size="18" letter-spacing="3">OLD GENTLEMEN</text>
+    <text x="300" y="495" font-size="18" letter-spacing="3">BIKERS</text>
+  </g>
+</svg>
