@@ -230,6 +230,26 @@
             letter-spacing: 0.5px;
         }
 
+        .sync-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 5;
+        }
+
+        .sync-indicator.synced {
+            color: #a8f0c2;
+            border-color: rgba(168, 240, 194, 0.3);
+        }
+
         @media (max-width: 480px) {
             .days-number {
                 font-size: 3.5rem;
@@ -261,6 +281,8 @@
 
     <button class="admin-button" id="adminToggle" type="button">Admin</button>
 
+    <div class="sync-indicator" id="syncIndicator">Conectando...</div>
+
     <div class="admin-panel" id="adminPanel" aria-live="polite">
         <h2>Admin</h2>
 
@@ -282,6 +304,7 @@
 
             <button type="submit" style="margin-top:6px;">Salvar alterações</button>
             <button type="button" id="logoutBtn" style="background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.7);">Sair</button>
+            <button type="button" id="shareBtn" style="background: rgba(168, 240, 194, 0.15); border-color: rgba(168, 240, 194, 0.3); color: #a8f0c2; margin-top: 6px;">📤 Compartilhar config</button>
         </form>
 
         <div class="admin-message" id="adminMessage"></div>
@@ -296,14 +319,76 @@
     </div>
 
     <script>
+        // Configuração global compartilhada
+        const CONFIG_URL = 'https://vipereiravp-create.github.io/Contador-GV/config.json';
+        
         const STORAGE_KEYS = {
             date: 'ogb-event-date',
             background: 'ogb-event-background',
-            title: 'ogb-event-title'
+            title: 'ogb-event-title',
+            lastSync: 'ogb-last-sync'
         };
 
         const ADMIN_USER = 'admin';
         const ADMIN_PASSWORD = 'q2l9w5n8';
+
+        // Sincronizar configurações a cada 5 segundos
+        let isSyncing = false;
+        async function syncConfigFromCloud() {
+            if (isSyncing) return;
+            isSyncing = true;
+            try {
+                const response = await fetch(CONFIG_URL + '?t=' + Date.now(), { cache: 'no-store' });
+                if (response.ok) {
+                    const config = await response.json();
+                    const lastSync = localStorage.getItem(STORAGE_KEYS.lastSync);
+                    const configTime = new Date(config.lastUpdated).getTime();
+                    const lastSyncTime = lastSync ? parseInt(lastSync) : 0;
+                    
+                    // Se config na nuvem é mais recente, atualiza localmente
+                    if (configTime > lastSyncTime) {
+                        localStorage.setItem(STORAGE_KEYS.title, config.title || 'Próximo Rolê / Evento');
+                        localStorage.setItem(STORAGE_KEYS.date, config.date || '2026-12-31');
+                        localStorage.setItem(STORAGE_KEYS.lastSync, configTime.toString());
+                        
+                        // Recarrega a exibição
+                        counterTitleDisplay.textContent = config.title || 'Próximo Rolê / Evento';
+                        eventDateInput.value = config.date || '2026-12-31';
+                        counterTitleInput.value = config.title || 'Próximo Rolê / Evento';
+                        targetDate = new Date((config.date || '2026-12-31') + 'T00:00:00');
+                        updateCountdown();
+                    }
+                    
+                    syncIndicator.textContent = '✓ Sincronizado';
+                    syncIndicator.classList.add('synced');
+                }
+            } catch (error) {
+                syncIndicator.textContent = '◯ Modo local';
+                syncIndicator.classList.remove('synced');
+            }
+            isSyncing = false;
+        }
+
+        // Sincronizar ao carregar
+        window.addEventListener('load', syncConfigFromCloud);
+        // Sincronizar periodicamente
+        setInterval(syncConfigFromCloud, 5000);
+
+        function exportConfigAsJSON() {
+            const config = {
+                title: counterTitleInput.value || 'Próximo Rolê / Evento',
+                date: eventDateInput.value || '2026-12-31',
+                background: null,
+                lastUpdated: new Date().toISOString()
+            };
+            return JSON.stringify(config, null, 2);
+        }
+
+        function showExportModal() {
+            const configJSON = exportConfigAsJSON();
+            const message = `📋 Configuração pronta para compartilhar:\n\n${configJSON}\n\nCopie este JSON e atualize o arquivo config.json no repositório para que todos vejam as alterações.`;
+            alert(message);
+        }
 
         const adminToggle = document.getElementById('adminToggle');
         const adminPanel = document.getElementById('adminPanel');
@@ -316,6 +401,7 @@
         const eventDateInput = document.getElementById('eventDate');
         const backgroundFileInput = document.getElementById('backgroundFile');
         const logoutBtn = document.getElementById('logoutBtn');
+        const syncIndicator = document.getElementById('syncIndicator');
 
         let targetDate = new Date('2026-12-31T00:00:00');
 
@@ -435,6 +521,8 @@
             document.getElementById('password').value = '';
             adminPanel.classList.add('visible');
         });
+
+        document.getElementById('shareBtn').addEventListener('click', showExportModal);
 
         applyStoredOptions();
         updateCountdown();
