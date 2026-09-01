@@ -369,14 +369,6 @@
             isSyncing = false;
         }
 
-        // Sincronizar ao carregar
-        window.addEventListener('load', syncConfigFromCloud);
-        // Sincronizar periodicamente
-        setInterval(syncConfigFromCloud, 5000);
-
-        // Carregar configurações da URL ao iniciar
-        loadConfigFromURL();
-
         function exportConfigAsJSON() {
             const config = {
                 title: counterTitleInput.value || 'Próximo Rolê / Evento',
@@ -560,6 +552,14 @@
         });
 
         document.getElementById('shareBtn').addEventListener('click', generateShareLink);
+
+        // Sincronizar ao carregar
+        window.addEventListener('load', function() {
+            syncConfigFromCloud();
+            loadConfigFromURL();
+        });
+        // Sincronizar periodicamente
+        setInterval(syncConfigFromCloud, 5000);
 
         applyStoredOptions();
         updateCountdown();
