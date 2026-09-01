@@ -374,6 +374,9 @@
         // Sincronizar periodicamente
         setInterval(syncConfigFromCloud, 5000);
 
+        // Carregar configurações da URL ao iniciar
+        loadConfigFromURL();
+
         function exportConfigAsJSON() {
             const config = {
                 title: counterTitleInput.value || 'Próximo Rolê / Evento',
@@ -382,6 +385,40 @@
                 lastUpdated: new Date().toISOString()
             };
             return JSON.stringify(config, null, 2);
+        }
+
+        function generateShareLink() {
+            const title = encodeURIComponent(counterTitleInput.value || 'Próximo Rolê / Evento');
+            const date = eventDateInput.value || '2026-12-31';
+            const shareLink = `https://vipereiravp-create.github.io/Contador-GV/?title=${title}&date=${date}`;
+            
+            // Copiar para clipboard
+            navigator.clipboard.writeText(shareLink).then(() => {
+                setMessage('✓ Link copiado! Compartilhe com seus amigos.');
+            }).catch(() => {
+                const message = `📤 Copie este link:\n\n${shareLink}`;
+                alert(message);
+            });
+        }
+
+        function loadConfigFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const titleParam = params.get('title');
+            const dateParam = params.get('date');
+            
+            if (titleParam) {
+                const decodedTitle = decodeURIComponent(titleParam);
+                localStorage.setItem(STORAGE_KEYS.title, decodedTitle);
+                counterTitleDisplay.textContent = decodedTitle;
+                counterTitleInput.value = decodedTitle;
+            }
+            
+            if (dateParam) {
+                localStorage.setItem(STORAGE_KEYS.date, dateParam);
+                eventDateInput.value = dateParam;
+                targetDate = new Date(dateParam + 'T00:00:00');
+                updateCountdown();
+            }
         }
 
         function showExportModal() {
@@ -522,7 +559,7 @@
             adminPanel.classList.add('visible');
         });
 
-        document.getElementById('shareBtn').addEventListener('click', showExportModal);
+        document.getElementById('shareBtn').addEventListener('click', generateShareLink);
 
         applyStoredOptions();
         updateCountdown();
