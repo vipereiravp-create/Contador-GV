@@ -301,10 +301,11 @@
 
             <label style="text-align:left; font-size:0.7rem; letter-spacing:1px; color:rgba(255,255,255,0.6); text-transform:uppercase; display:block; margin-bottom:6px; margin-top:6px;">Imagem de fundo</label>
             <input type="file" id="backgroundFile" accept="image/*">
+            <small style="display:block; color:#a8f0c2; font-size:0.65rem; margin-top:4px;">Dica: Imagem é salva no navegador. Clique em "Sincronizar config" após editar para compartilhar</small>
 
             <button type="submit" style="margin-top:6px;">Salvar alterações</button>
             <button type="button" id="logoutBtn" style="background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.7);">Sair</button>
-            <button type="button" id="shareBtn" style="background: rgba(168, 240, 194, 0.15); border-color: rgba(168, 240, 194, 0.3); color: #a8f0c2; margin-top: 6px;">📤 Compartilhar config</button>
+            <button type="button" id="shareBtn" style="background: rgba(168, 240, 194, 0.15); border-color: rgba(168, 240, 194, 0.3); color: #a8f0c2; margin-top: 6px;">📤 Sincronizar config</button>
         </form>
 
         <div class="admin-message" id="adminMessage"></div>
@@ -351,6 +352,12 @@
                         localStorage.setItem(STORAGE_KEYS.date, config.date || '2026-12-31');
                         localStorage.setItem(STORAGE_KEYS.lastSync, configTime.toString());
                         
+                        // Sincroniza background se existir
+                        if (config.background) {
+                            localStorage.setItem(STORAGE_KEYS.background, config.background);
+                            backgroundLogo.src = config.background;
+                        }
+                        
                         // Recarrega a exibição
                         counterTitleDisplay.textContent = config.title || 'Próximo Rolê / Evento';
                         eventDateInput.value = config.date || '2026-12-31';
@@ -373,7 +380,7 @@
             const config = {
                 title: counterTitleInput.value || 'Próximo Rolê / Evento',
                 date: eventDateInput.value || '2026-12-31',
-                background: null,
+                background: localStorage.getItem(STORAGE_KEYS.background) || null,
                 lastUpdated: new Date().toISOString()
             };
             return JSON.stringify(config, null, 2);
@@ -391,12 +398,27 @@
                 const message = `📤 Copie este link:\n\n${shareLink}`;
                 alert(message);
             });
+
+            // Gerar config.json com imagem para copiar
+            const config = {
+                title: counterTitleInput.value || 'Próximo Rolê / Evento',
+                date: eventDateInput.value || '2026-12-31',
+                background: localStorage.getItem(STORAGE_KEYS.background) || null,
+                lastUpdated: new Date().toISOString(),
+                version: 1
+            };
+            
+            // Copiar também o JSON da config
+            const jsonText = JSON.stringify(config, null, 2);
+            console.log('📋 Cole este config.json na sua pasta:');
+            console.log(jsonText);
         }
 
         function loadConfigFromURL() {
             const params = new URLSearchParams(window.location.search);
             const titleParam = params.get('title');
             const dateParam = params.get('date');
+            const bgParam = params.get('bg');
             
             if (titleParam) {
                 const decodedTitle = decodeURIComponent(titleParam);
@@ -410,6 +432,16 @@
                 eventDateInput.value = dateParam;
                 targetDate = new Date(dateParam + 'T00:00:00');
                 updateCountdown();
+            }
+
+            if (bgParam) {
+                try {
+                    const decodedBg = decodeURIComponent(bgParam);
+                    localStorage.setItem(STORAGE_KEYS.background, decodedBg);
+                    backgroundLogo.src = decodedBg;
+                } catch (e) {
+                    console.log('Background parameter decode error');
+                }
             }
         }
 
@@ -489,15 +521,32 @@
             setMessage('');
         }
 
+        function compressImage(imgElement, quality = 0.7) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = imgElement.width;
+                canvas.height = imgElement.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(imgElement, 0, 0);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            });
+        }
+
         function saveBackgroundImage(file) {
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function (event) {
                 const imageData = event.target.result;
-                backgroundLogo.src = imageData;
-                localStorage.setItem(STORAGE_KEYS.background, imageData);
-                setMessage('Imagem de fundo salva com sucesso.');
+                const img = new Image();
+                img.onload = async function () {
+                    // Comprimir para JPEG com 60% de qualidade
+                    const compressed = await compressImage(img, 0.6);
+                    backgroundLogo.src = compressed;
+                    localStorage.setItem(STORAGE_KEYS.background, compressed);
+                    setMessage('✓ Imagem de fundo salva com sucesso. Configure título/data e clique em "📤 Compartilhar config" para sincronizar.');
+                };
+                img.src = imageData;
             };
             reader.readAsDataURL(file);
         }
