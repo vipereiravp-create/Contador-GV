@@ -25,14 +25,14 @@
         }
 
         .background-logo {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80vw;
-            max-width: 500px;
-            opacity: 0.15;
-            filter: grayscale(100%) contrast(150%);
+            width: 85vw;
+            max-width: 520px;
+            opacity: 0.20;
+            filter: grayscale(100%) contrast(140%);
             z-index: 1;
             pointer-events: none;
             animation: pulseLogo 4s ease-in-out infinite;
@@ -41,11 +41,11 @@
         @keyframes pulseLogo {
             0%, 100% {
                 transform: translate(-50%, -50%) scale(0.96);
-                opacity: 0.12;
+                opacity: 0.15;
             }
             50% {
-                transform: translate(-50%, -50%) scale(1.04);
-                opacity: 0.18;
+                transform: translate(-50%, -50%) scale(1.05);
+                opacity: 0.25;
             }
         }
 
@@ -277,7 +277,7 @@
     </style>
 </head>
 <body>
-    <img id="backgroundLogo" src="brasao.svg" alt="Brasão Old Gentlemen Bikers" class="background-logo">
+    <img id="backgroundLogo" src="imagem1.png" alt="Brasão Old Gentlemen Bikers" class="background-logo">
 
     <button class="admin-button" id="adminToggle" type="button">Admin</button>
 
@@ -299,9 +299,8 @@
             <label style="text-align:left; font-size:0.7rem; letter-spacing:1px; color:rgba(255,255,255,0.6); text-transform:uppercase; display:block; margin-bottom:6px; margin-top:6px;">Data do evento</label>
             <input type="date" id="eventDate" required>
 
-            <label style="text-align:left; font-size:0.7rem; letter-spacing:1px; color:rgba(255,255,255,0.6); text-transform:uppercase; display:block; margin-bottom:6px; margin-top:6px;">Imagem de fundo</label>
-            <input type="file" id="backgroundFile" accept="image/*">
-            <small style="display:block; color:#a8f0c2; font-size:0.65rem; margin-top:4px;">Dica: Imagem é salva no navegador. Clique em "Sincronizar config" após editar para compartilhar</small>
+            <label style="text-align:left; font-size:0.7rem; letter-spacing:1px; color:rgba(255,255,255,0.6); text-transform:uppercase; display:block; margin-bottom:6px; margin-top:6px;">Imagem de fundo (padrão)</label>
+            <div style="color:#a8f0c2; font-size:0.85rem;">Imagem fixa: <strong>imagem1.png</strong></div>
 
             <button type="submit" style="margin-top:6px;">Salvar alterações</button>
             <button type="button" id="logoutBtn" style="background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.7);">Sair</button>
@@ -380,7 +379,7 @@
             const config = {
                 title: counterTitleInput.value || 'Próximo Rolê / Evento',
                 date: eventDateInput.value || '2026-12-31',
-                background: localStorage.getItem(STORAGE_KEYS.background) || null,
+                background: localStorage.getItem(STORAGE_KEYS.background) || 'imagem1.png',
                 lastUpdated: new Date().toISOString()
             };
             return JSON.stringify(config, null, 2);
@@ -403,7 +402,7 @@
             const config = {
                 title: counterTitleInput.value || 'Próximo Rolê / Evento',
                 date: eventDateInput.value || '2026-12-31',
-                background: localStorage.getItem(STORAGE_KEYS.background) || null,
+                background: localStorage.getItem(STORAGE_KEYS.background) || 'imagem1.png',
                 lastUpdated: new Date().toISOString(),
                 version: 1
             };
@@ -460,7 +459,7 @@
         const counterTitleDisplay = document.getElementById('counterTitleDisplay');
         const counterTitleInput = document.getElementById('counterTitle');
         const eventDateInput = document.getElementById('eventDate');
-        const backgroundFileInput = document.getElementById('backgroundFile');
+        // backgroundFileInput removed; background is fixed to imagem1.png by default
         const logoutBtn = document.getElementById('logoutBtn');
         const syncIndicator = document.getElementById('syncIndicator');
 
@@ -486,8 +485,12 @@
                 eventDateInput.value = '2026-12-31';
             }
 
-            if (savedBackground) {
+            if (savedBackground && savedBackground !== 'brasao.svg') {
                 backgroundLogo.src = savedBackground;
+            } else {
+                // Garantir imagem padrão embutida (imagem1.png)
+                backgroundLogo.src = 'imagem1.png';
+                localStorage.setItem(STORAGE_KEYS.background, 'imagem1.png');
             }
         }
 
@@ -521,35 +524,7 @@
             setMessage('');
         }
 
-        function compressImage(imgElement, quality = 0.7) {
-            return new Promise((resolve) => {
-                const canvas = document.createElement('canvas');
-                canvas.width = imgElement.width;
-                canvas.height = imgElement.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(imgElement, 0, 0);
-                resolve(canvas.toDataURL('image/jpeg', quality));
-            });
-        }
-
-        function saveBackgroundImage(file) {
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                const imageData = event.target.result;
-                const img = new Image();
-                img.onload = async function () {
-                    // Comprimir para JPEG com 60% de qualidade
-                    const compressed = await compressImage(img, 0.6);
-                    backgroundLogo.src = compressed;
-                    localStorage.setItem(STORAGE_KEYS.background, compressed);
-                    setMessage('✓ Imagem de fundo salva com sucesso. Configure título/data e clique em "📤 Compartilhar config" para sincronizar.');
-                };
-                img.src = imageData;
-            };
-            reader.readAsDataURL(file);
-        }
+        // Upload e compressão de imagem removidos: a imagem de fundo é fixa (brasao.svg)
 
         adminToggle.addEventListener('click', togglePanel);
 
@@ -585,9 +560,7 @@
             targetDate = new Date(selectedDate + 'T00:00:00');
             localStorage.setItem(STORAGE_KEYS.date, selectedDate);
 
-            if (backgroundFileInput.files && backgroundFileInput.files[0]) {
-                saveBackgroundImage(backgroundFileInput.files[0]);
-            }
+            // Upload de imagem desabilitado — mantendo background padrão
 
             updateCountdown();
             setMessage('Dados do evento salvos com sucesso.');
